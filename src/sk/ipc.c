@@ -92,7 +92,7 @@ void sk_sem_acquire(sk_sem *sem)
 bool sk_sem_try_acquire(sk_sem *sem)
 {
 	sk_arch_disable_int();
-	if (sem->counter > 0) {
+	if (sem->counter == 0) {
 		sk_arch_enable_int();
 		return false;
 	}
