@@ -8,6 +8,7 @@
 
 /* Using provided includes from GCC for AVR. */
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef unsigned char sk_stack_t;
 typedef size_t sk_size_t;
