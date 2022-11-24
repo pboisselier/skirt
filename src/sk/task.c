@@ -149,10 +149,7 @@ sk_task *sk_task_create_static(sk_task_func func, short priority, void *stack,
 			       sk_size_t stack_sz)
 {
 	sk_task *task = sk_task_alloc();
-	if (!task) {
-		SK_PANIC(
-			"Ran out of memory or maximum number of tasks reached! Cannot create a new task!\n");
-	}
+	SK_ASSERT(task);
 
 	task->stack = stack;
 	task->stack_sz = stack_sz;
