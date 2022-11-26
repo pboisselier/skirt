@@ -10,8 +10,6 @@ extern sk_task *task_current;
 
 #ifdef SKIRT_ALLOC_STATIC
 
-#define SK_SEM_MAGIC_NUMBER (-12)
-
 /* Using SKIRT_TASK_MAX for pool size, should be plenty. */
 static sk_sem sem_pool[SKIRT_TASK_MAX] = { 0 };
 
@@ -83,7 +81,7 @@ void sk_sem_acquire(sk_sem *sem)
 
 	while (sem->counter == 0) {
 		sk_arch_disable_int();
-		sk_arch_yield_int();
+		sk_arch_yield();
 	}
 	sem->counter--;
 	sk_arch_enable_int();

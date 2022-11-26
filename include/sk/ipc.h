@@ -71,10 +71,10 @@ extern void sk_sem_acquire(sk_sem *sem);
  */
 extern bool sk_sem_try_acquire(sk_sem *sem);
 
-/***********
- * Signals *
- ***********/
-extern void sk_sig_broadcast(int sig);
+/*************
+ * Signals   *
+ *************/
+extern void sk_sig_send(int sig);
 extern void sk_sig_register(int sig, sk_sig_handler handler);
 
 /****************
