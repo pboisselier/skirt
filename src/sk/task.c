@@ -6,8 +6,8 @@
 #include <sk/task.h>
 #include <sk/arch.h>
 
-sk_task *task_head;
-sk_task *task_current;
+sk_task *volatile task_head;
+sk_task *volatile task_current;
 
 #ifdef SKIRT_ALLOC_STATIC
 static sk_task task_pool[SKIRT_TASK_MAX] = { 0 };
@@ -44,18 +44,17 @@ static inline void sk_task_free(sk_task *task)
 #endif
 
 /**
- * @brief Insert a task after the head, or create the head if it is empty.
- * @param task Task to insert.
+ * @brief Prepend a task to the list.
+ * @param task Task to prepend.
  */
-static inline void sk_task_insert(sk_task *task)
+static inline void sk_task_prepend(sk_task *task)
 {
 	if (!task_head) {
 		task_head = task;
 		return;
 	}
-	sk_task *tmp = task_head->next;
-	task_head->next = task;
-	task->next = tmp;
+	task->next = task_head;
+	task_head = task;
 }
 
 static inline void sk_task_remove(sk_task *task)
@@ -105,11 +104,15 @@ static inline void sk_task_update_counters(void)
 /* TODO: Use priority-based scheduling and make it real-time. */
 static inline SK_HOT sk_task *sk_task_find_ready(void)
 {
+	sk_task *elected = task_current;
 	sk_task *tmp = task_current;
 	while (tmp->next) {
 		tmp = tmp->next;
 		if (tmp->state == READY) {
 			return tmp;
+			//if (tmp->priority > elected->priority) {
+			//	elected = tmp;
+			//}
 		}
 	}
 
@@ -132,7 +135,9 @@ void sk_task_switch(void)
 		task_current = task_head;
 	}
 
-	task_current->state = READY;
+	if (task_current->state == RUNNING) {
+		task_current->state = READY;
+	}
 
 	sk_task *next = sk_task_find_ready();
 	SK_ASSERT(next);
@@ -150,6 +155,7 @@ sk_task *sk_task_create_static(sk_task_func func, short priority, void *stack,
 {
 	sk_task *task = sk_task_alloc();
 	SK_ASSERT(task);
+	sk_task_prepend(task);
 
 	task->stack = stack;
 	task->stack_sz = stack_sz;
@@ -158,7 +164,6 @@ sk_task *sk_task_create_static(sk_task_func func, short priority, void *stack,
 
 	sk_arch_stack_init(func, task);
 
-	sk_task_insert(task);
 
 	return task;
 }
@@ -176,7 +181,7 @@ void sk_task_exit(void)
 	sk_task_remove(task_current);
 	sk_task_free(task_current);
 
-	sk_arch_yield_int();
+	sk_arch_yield();
 
 	SK_VERIFY_NOT_REACHED();
 }
@@ -187,5 +192,21 @@ void sk_task_sleep(sk_size_t time_ms)
 	/* TODO: Convert time_ms to nearest number of interrupts required. */
 	task_current->counter.sleeping = time_ms;
 	task_current->state = SLEEPING;
-	sk_arch_yield_int();
+	sk_arch_yield();
+}
+
+void sk_task_awake(sk_task *task)
+{
+	sk_arch_disable_int();
+	SK_ASSERT(task);
+	task->state = READY;
+	sk_arch_enable_int();
+}
+
+void sk_task_await(void)
+{
+	sk_arch_disable_int();
+	SK_ASSERT(task_current);
+	task_current->state = WAITING;
+	sk_arch_yield();
 }

@@ -16,7 +16,7 @@ typedef void (*sk_task_func)(void);
 #ifdef SKIRT_ALLOC_STATIC
 
 #ifndef SKIRT_PREEMPT_TIME
-#define SKIRT_PREEMPT_TIME 32000
+#define SKIRT_PREEMPT_TIME 1
 #endif /* SKIRT_PREEMPT_TIME */
 
 #ifndef SKIRT_TASK_MAX
@@ -85,5 +85,16 @@ extern void sk_task_exit(void);
  * @param time_ms Minimum time in ms.
  */
 extern void sk_task_sleep(sk_size_t time_ms);
+
+/**
+ * @brief Wake-up a waiting task.
+ * @param task Task in WAITING state.
+ */
+extern void sk_task_awake(sk_task *task);
+/**
+ * @brief Put current task (caller) in WAITING state.
+ * @note Only "sk_task_awake" will change its state!
+ */
+extern void sk_task_await(void);
 
 #endif /* SKIRT_TASK_H */
