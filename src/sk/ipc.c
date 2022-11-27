@@ -35,6 +35,32 @@ static inline void sk_sem_free(sk_sem *sem)
 	sem->counter = 0;
 	sem->flag = 0;
 }
+
+static sk_mail mail_pool[SKIRT_TASK_MAX] = { 0 };
+
+static inline sk_mail *sk_mail_alloc(const void *msg)
+{
+	for (sk_size_t i = 0; i < SKIRT_TASK_MAX; ++i) {
+		if (mail_pool[i].task == NULL) {
+			mail_pool[i].next = NULL;
+			mail_pool[i].msg = msg;
+			return &mail_pool[i];
+		}
+	}
+
+	return NULL;
+}
+
+static inline void sk_mail_free(sk_mail *mail)
+{
+	SK_ASSERT(mail);
+	if (mail < mail_pool || mail > &mail_pool[SKIRT_TASK_MAX - 1]) {
+		SK_PANIC("Provided mail is not from the static pool!\n");
+	}
+	mail->msg = NULL;
+	mail->next = NULL;
+}
+
 #else
 #error "FIXME: Only SKIRT_ALLOC_STATIC is supported!"
 #endif /* SKIRT_ALLOC_STATIC */
@@ -97,4 +123,52 @@ bool sk_sem_try_acquire(sk_sem *sem)
 	sem->counter--;
 	sk_arch_enable_int();
 	return true;
+}
+
+void sk_mail_send_to(sk_task *task, const void *msg)
+{
+	sk_arch_disable_int();
+	SK_ASSERT(task);
+
+	sk_mail *mail = sk_mail_alloc(msg);
+	SK_ASSERT(mail);
+
+	if (!task->mailbox) {
+		task->mailbox = mail;
+	} else {
+		sk_mail *tmp = task->mailbox;
+		while (tmp->next) {
+			tmp = tmp->next;
+		}
+		tmp->next = mail;
+	}
+
+	sk_arch_enable_int();
+}
+
+/* O0 "optimization" forced to prevent a read on task_current after enabling
+ * interrupts. */
+SK_NOOPTI bool sk_mail_available(void)
+{
+	sk_arch_disable_int();
+	SK_ASSERT(task_current);
+	volatile bool tmp = (task_current->mailbox != NULL);
+	sk_arch_enable_int();
+	return tmp;
+}
+void *sk_mail_pickup(void)
+{
+	sk_arch_disable_int();
+	if (!task_current->mailbox) {
+		sk_arch_enable_int();
+		return NULL;
+	}
+
+	void *msg = task_current->mailbox->msg;
+	sk_mail *tmp = task_current->mailbox;
+	task_current->mailbox = task_current->mailbox->next;
+	sk_mail_free(tmp);
+	sk_arch_enable_int();
+
+	return msg;
 }

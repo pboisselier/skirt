@@ -28,7 +28,8 @@ typedef struct sk_sig {
 } sk_sig;
 
 typedef struct sk_mail {
-	void *msg;
+	const void *msg;
+	sk_task *task;
 	struct sk_mail *next;
 } sk_mail;
 
@@ -80,8 +81,22 @@ extern void sk_sig_register(int sig, sk_sig_handler handler);
 /****************
  * Mail & Boxes *
  ****************/
-extern void sk_mail_send_to(sk_task *task, void *msg);
+/**
+  * @brief Send a mail to another task (FiFo).
+  * @param task Recipient task.
+  * @param msg Pointer to data.
+  */
+extern void sk_mail_send_to(sk_task *task, const void *msg);
+/**
+ * @brief Check if a mail is available.
+ * @return True if there's a new mail, false otherwise.
+ */
 extern bool sk_mail_available(void);
+/**
+ * @brief Retrieve queued mail (FiFo).
+ * @return Mail's content.
+ * @note Once a mail is read, it is deleted.
+ */
 extern void *sk_mail_pickup(void);
 
 #endif /* SKIRT_IPC_H */
