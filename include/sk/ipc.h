@@ -96,7 +96,8 @@ extern bool sk_mail_available(void);
  * @brief Retrieve queued mail (FiFo).
  * @return Mail's content.
  * @note Once a mail is read, it is deleted.
+ * @warning This does not do a copy, only pointers are exchanged!
  */
-extern void *sk_mail_pickup(void);
+extern const void *sk_mail_pickup(void);
 
 #endif /* SKIRT_IPC_H */

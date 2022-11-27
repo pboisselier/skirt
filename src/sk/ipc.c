@@ -156,7 +156,7 @@ SK_NOOPTI bool sk_mail_available(void)
 	sk_arch_enable_int();
 	return tmp;
 }
-void *sk_mail_pickup(void)
+const void *sk_mail_pickup(void)
 {
 	sk_arch_disable_int();
 	if (!task_current->mailbox) {
@@ -164,7 +164,7 @@ void *sk_mail_pickup(void)
 		return NULL;
 	}
 
-	void *msg = task_current->mailbox->msg;
+	const void *msg = task_current->mailbox->msg;
 	sk_mail *tmp = task_current->mailbox;
 	task_current->mailbox = task_current->mailbox->next;
 	sk_mail_free(tmp);
