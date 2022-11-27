@@ -58,6 +58,7 @@ static inline void sk_mail_free(sk_mail *mail)
 		SK_PANIC("Provided mail is not from the static pool!\n");
 	}
 	mail->msg = NULL;
+	mail->task = NULL;
 	mail->next = NULL;
 }
 
