@@ -53,7 +53,6 @@ extern sk_sem *sk_sem_create(int initial_value);
  * @param sem Semaphore to destroy.
  */
 extern void sk_sem_destroy(sk_sem *sem);
-
 /**
  * Increments the internal counter and unblocks acquirers.
  * @param sem Semaphore to operate on.

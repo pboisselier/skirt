@@ -22,9 +22,11 @@ void task1(void)
 	sk_sem_acquire(s);
 	sk_sem_acquire(s);
 	sk_serial_print("Task1 set to wait!\n");
-	sk_task_sleep(10000);
+	sk_task_sleep(1000);
 	sk_serial_print("Task1 stopped waiting :)\n");
 	sk_mail_send_to(t2, "Hello!\n");
+	sk_mail_send_to(t2, "Hello2!\n");
+	sk_mail_send_to(t2, "Hello3!\n");
 	sk_task_awake(t2);
 	sk_serial_print("Task1 woke up Task2 (goodbye!) :)\n");
 	sk_task_exit();
@@ -41,7 +43,7 @@ SK_NORETURN void task2(void)
 	sk_sem_release(s);
 	sk_serial_print("Task2 awaiting a wake-up...\n");
 	sk_task_await();
-	if (sk_mail_available()) {
+	while (sk_mail_available()) {
 		const char *msg = sk_mail_pickup();
 		sk_serial_print(msg);
 	}
