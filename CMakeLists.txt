@@ -36,16 +36,19 @@ endif ()
 add_library(skirt STATIC
         src/sk/skirt.c
         src/sk/task.c
+        src/sk/ipc.c
 
+        # Add architecture-specific source files
         $<$<STREQUAL:${SKIRT_ARCH},avr>:
-        src/sk/arch/avr/avr.c>
-        )
+        src/sk/arch/avr/avr.c>)
+
 target_compile_definitions(skirt PUBLIC SKIRT_KERNEL)
+# Only static allocation available for now.
 target_compile_definitions(skirt PUBLIC SKIRT_ALLOC_STATIC)
 target_include_directories(skirt PUBLIC include)
 
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
-    target_compile_options(skirt PUBLIC -std=gnu11 -g -O0 -pedantic -Wextra -Wall -Wdouble-promotion)
+    target_compile_options(skirt PUBLIC -std=gnu11 -g -Os -pedantic -Wextra -Wall)
 endif ()
 
 if (SKIRT_ARCH STREQUAL "avr")

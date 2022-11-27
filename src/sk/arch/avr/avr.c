@@ -6,16 +6,18 @@
 #include <sk/arch.h>
 #include <sk/serial.h>
 
-extern volatile sk_task *volatile task_current;
-extern volatile sk_task *volatile task_head;
+extern sk_task *volatile task_current;
+extern sk_task *volatile task_head;
 
 #ifdef __AVR_ATmega328P__
-#define SK_CONTEXT_SZ 35
 ISR(TIMER1_COMPA_vect, ISR_NAKED)
 {
 	cli();
-	SK_ASSERT(task_head);
-	sk_arch_yield_int();
+	sk_arch_save_context();
+	task_current->sp = (sk_stack_t *)SP;
+	sk_task_switch();
+	sk_arch_restore_task_context(task_current);
+	__asm__ __volatile__("reti" ::: "memory");
 }
 void sk_arch_init_preempt(void)
 {
@@ -31,30 +33,14 @@ void sk_arch_init_preempt(void)
 #endif
 }
 
-void sk_arch_stack_init(sk_task_func func, sk_task *task)
-{
-	task->sp = &task->stack[task->stack_sz - 1];
-	*(task->sp) = (uint8_t)((uint16_t)func & 0xff);
-	*(task->sp - 1) = (uint8_t)(((uint16_t)func >> 8) & 0xff);
-	task->sp -= SK_CONTEXT_SZ;
-}
-
 SK_NAKED void sk_arch_yield(void)
 {
-	sk_arch_save_task_context(task_current);
+	sk_arch_save_context();
+	task_current->sp = (sk_stack_t *)SP;
 	sk_task_switch();
 	SK_ASSERT(task_current);
 	sk_arch_restore_task_context(task_current);
-	__asm__ __volatile__("ret");
-}
-
-SK_NAKED void sk_arch_yield_int(void)
-{
-	sk_arch_save_task_context(task_current);
-	sk_task_switch();
-	SK_ASSERT(task_current);
-	sk_arch_restore_task_context(task_current);
-	__asm __volatile__("reti");
+	__asm__ __volatile__("sei\t\nret");
 }
 
 SK_NORETURN void sk_arch_panic(const char *msg)

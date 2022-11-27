@@ -9,19 +9,30 @@
     - [x] Deletion (and exit)
     - [x] Switching
     - [x] Sleeping (conversion to milliseconds is TODO)
+    - [x] Await/Awake
     - [ ] Priority-based scheduling
 - [ ] I/Os
     - [x] Basic Serial
     - [ ] Task waiting for I/Os
     - [ ] Hardware Interrupts registration for tasks
 - [ ] IPCs
-    - [ ] Message queues
-    - [ ] Semaphores
+    - [x] Mails & Boxes
+    - [x] Semaphores
+    - [ ] Signals
 - [ ] Support
     - [ ] AVR
         - [x] ATmega328P
     - [ ] ARMv6-M (Cortex-M0+)
         - [ ] RP2040
+  
+## Improvement Ideas
+
+- Global
+  - [ ] Create a way to make proper "syscall" (`svc/svi` on arm)
+- Tasks
+  - [ ] Replace sk_task* with a TaskID (tid)?
+- IPCs
+  - [ ] Add IDs for Semaphores instead of pointer?
 
 ## How to use
 

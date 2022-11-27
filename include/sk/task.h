@@ -16,7 +16,7 @@ typedef void (*sk_task_func)(void);
 #ifdef SKIRT_ALLOC_STATIC
 
 #ifndef SKIRT_PREEMPT_TIME
-#define SKIRT_PREEMPT_TIME 32000
+#define SKIRT_PREEMPT_TIME 1
 #endif /* SKIRT_PREEMPT_TIME */
 
 #ifndef SKIRT_TASK_MAX
@@ -24,6 +24,9 @@ typedef void (*sk_task_func)(void);
 #endif /* SKIRT_TASK_MAX */
 
 #endif /* SKIRT_ALLOC_STATIC*/
+
+/* Forward declaration for Mail structure */
+typedef struct sk_mail sk_mail;
 
 typedef enum sk_state { RUNNING, READY, WAITING, SLEEPING } sk_state;
 
@@ -42,6 +45,7 @@ typedef struct sk_task {
 	sk_counter counter;
 	short priority;
 	struct sk_task *next;
+	sk_mail* mailbox;
 } sk_task;
 
 /**
@@ -54,7 +58,7 @@ typedef struct sk_task sk_task;
 #endif /* SKIRT_KERNEL */
 
 #ifndef SKIRT_TASK_STACK_SZ
-#define SKIRT_TASK_STACK_SZ 64
+#define SKIRT_TASK_STACK_SZ 48
 #endif /* SKIRT_TASK_STACK_SZ */
 
 /**
@@ -85,5 +89,16 @@ extern void sk_task_exit(void);
  * @param time_ms Minimum time in ms.
  */
 extern void sk_task_sleep(sk_size_t time_ms);
+
+/**
+ * @brief Wake-up a waiting task.
+ * @param task Task in WAITING state.
+ */
+extern void sk_task_awake(sk_task *task);
+/**
+ * @brief Put current task (caller) in WAITING state.
+ * @note Only "sk_task_awake" will change its state!
+ */
+extern void sk_task_await(void);
 
 #endif /* SKIRT_TASK_H */
