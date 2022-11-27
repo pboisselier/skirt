@@ -131,6 +131,7 @@ void sk_mail_send_to(sk_task *task, const void *msg)
 	SK_ASSERT(task);
 
 	sk_mail *mail = sk_mail_alloc(msg);
+	mail->task = task;
 	SK_ASSERT(mail);
 
 	if (!task->mailbox) {
