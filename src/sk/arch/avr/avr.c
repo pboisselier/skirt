@@ -10,6 +10,11 @@ extern sk_task *volatile task_current;
 extern sk_task *volatile task_head;
 
 #ifdef __AVR_ATmega328P__
+
+#ifndef F_CPU
+#define F_CPU 16000000
+#endif /* F_CPU */
+
 ISR(TIMER1_COMPA_vect, ISR_NAKED)
 {
 	cli();
@@ -55,7 +60,7 @@ SK_NORETURN void sk_arch_panic(const char *msg)
 /* TODO: Add more serial options. */
 void sk_arch_serial_init(void)
 {
-	UBRR0 = 9600L;
+	UBRR0 = F_CPU / (16 * 115200L) - 1;
 	/* Enable Tx and Rx operations */
 	UCSR0B = (1 << RXEN0) | (1 << TXEN0);
 	/* Set communication to asynchronous mode */
