@@ -50,3 +50,24 @@ cd build
 cmake .. -DSKIRT_ARCH=avr -DSKIRT_AVR_MCU=atmega328p -DCMAKE_BUILD_TYPE=Debug
 make
 ```
+
+## Troubleshooting
+
+### Checking object file
+
+For some MCU like the ATmega328P where there is only 2KiB of SRAM, the generated ELF file may be too big to  fit in.
+This can lead to lots of undefined and weird behaviours.
+You can use the `avr-size` to check: 
+```shell
+avr-size -C --mcu=atmega328p -x test.elf
+
+AVR Memory Usage
+----------------
+Device: atmega328p
+
+Program:    4276 bytes (13.0% Full)
+(.text + .data + .bootloader)
+
+Data:       1923 bytes (93.9% Full)
+(.data + .bss + .noinit)
+```

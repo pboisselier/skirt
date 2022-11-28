@@ -125,7 +125,7 @@ SK_INLINE void sk_arch_stack_init(sk_task_func func, sk_task *task)
 	*(task->sp) = (uint8_t)((uint16_t)func & 0xff);
 	task->sp--;
 	*(task->sp) = (uint8_t)(((uint16_t)func >> 8) & 0xff);
-	task->sp --;
+	task->sp--;
 	*task->sp = (uint8_t)0x00; /* r0 to 0 */
 	task->sp--;
 	*task->sp = (uint8_t)0x80; /* Interrupts ON */
@@ -137,6 +137,7 @@ SK_INLINE void sk_arch_stack_init(sk_task_func func, sk_task *task)
  * @brief Yield task to another, defined in avr.c.
  */
 extern void sk_arch_yield(void) SK_NAKED;
+
 
 /**
  * @brief Save SP and context.
@@ -152,16 +153,21 @@ extern void sk_arch_yield(void) SK_NAKED;
 /**
  * @brief Restore context and SP.
  */
-#define sk_arch_restore_task_context(task)        \
-	do {                                      \
-		SP = (sk_size_t)task->sp; \
-		sk_arch_restore_context();        \
+#define sk_arch_restore_task_context(task) \
+	do {                               \
+		SP = (sk_size_t)task->sp;  \
+		sk_arch_restore_context(); \
 	} while (0)
 
 /**
  * @brief Enable preemption timer.
  */
 extern void sk_arch_init_preempt(void);
+
+/**
+ * @brief Provide a way to use a "naked" return from kernel code.
+ */
+#define sk_arch_first_yield(task) do { sk_arch_restore_task_context(task); __asm__ __volatile__("ret");} while(0)
 
 /**
  * @brief Nop on AVR architecture.
