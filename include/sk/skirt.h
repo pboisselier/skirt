@@ -18,17 +18,23 @@
 		sk_arch_panic(msg);    \
 	} while (0)
 
-#define SK_ASSERT(pred)                                                        \
-	do {                                                                   \
-		if (!(pred)) {                                                 \
-			SK_PANIC("Assertion \"" #pred "\" failed at " __FILE__ \
-				 ":" SK_STR(__LINE__) "!\n");                  \
-		}                                                              \
+#ifdef SKIRT_DEBUG
+#define SK_ASSERT(pred)                                        \
+	do {                                                   \
+		if (!(pred)) {                                 \
+			SK_PANIC("Assertion \"" #pred          \
+				 "\" failed at " __BASE_FILE__ \
+				 ":" SK_STR(__LINE__) "!\n");  \
+		}                                              \
 	} while (0)
 
-#define SK_VERIFY_NOT_REACHED()          \
-	SK_PANIC("Function at " __FILE__ \
+#define SK_VERIFY_NOT_REACHED()               \
+	SK_PANIC("Function at " __BASE_FILE__ \
 		 ":" SK_STR(__LINE__) " should not return!\n")
+#else
+#define SK_VERIFY_NOT_REACHED() SK_PANIC("REACHED")
+#define SK_ASSERT(pred) SK_PANIC("ASSERT")
+#endif /* SKIRT_DEBUG */
 
 #ifdef __GNUC__
 #define SK_NAKED __attribute__((naked))

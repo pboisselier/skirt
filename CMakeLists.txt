@@ -48,7 +48,8 @@ target_compile_definitions(skirt PUBLIC SKIRT_ALLOC_STATIC)
 target_include_directories(skirt PUBLIC include)
 
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
-    target_compile_options(skirt PUBLIC -std=gnu11 -g -Os -pedantic -Wextra -Wall)
+    target_compile_definitions(skirt PUBLIC SKIRT_DEBUG)
+    target_compile_options(skirt PUBLIC -std=gnu11 -g -O3 -pedantic -Wextra -Wall)
 endif ()
 
 if (SKIRT_ARCH STREQUAL "avr")
