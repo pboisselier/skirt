@@ -44,6 +44,7 @@ add_library(skirt STATIC
 
 target_compile_definitions(skirt PUBLIC SKIRT_KERNEL)
 # Only static allocation available for now.
+# TODO: Make it optional when other allocation schemes are added
 target_compile_definitions(skirt PUBLIC SKIRT_ALLOC_STATIC)
 target_include_directories(skirt PUBLIC include)
 
