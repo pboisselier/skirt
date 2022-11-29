@@ -25,6 +25,7 @@ static inline sk_task *sk_task_alloc(void)
 			task_pool[i].counter.waiting = 0;
 			task_pool[i].counter.running = 0;
 			task_pool[i].counter.sleeping = 0;
+			task_pool[i].counter.ready = 0;
 			return &task_pool[i];
 		}
 	}
@@ -81,13 +82,13 @@ static inline void sk_task_update_counters(void)
 {
 	sk_task *tmp = task_head;
 	while (tmp) {
-		tmp->counter.since_creation += SKIRT_PREEMPT_TIME;
+		tmp->counter.since_creation++;
 		switch (tmp->state) {
 		case RUNNING:
-			tmp->counter.running += SKIRT_PREEMPT_TIME;
+			tmp->counter.running++;
 			break;
 		case WAITING:
-			tmp->counter.waiting += SKIRT_PREEMPT_TIME;
+			tmp->counter.waiting++;
 			break;
 		case SLEEPING:
 			tmp->counter.sleeping--;
@@ -96,24 +97,40 @@ static inline void sk_task_update_counters(void)
 			}
 			break;
 		case READY:
+			tmp->counter.ready++;
 			break;
 		}
 		tmp = tmp->next;
 	}
 }
 
-/* TODO: Use priority-based scheduling and make it real-time. */
+#define SKIRT_HARD_PRIO
+#ifdef SKIRT_HARD_PRIO
+/* Always yield to the highest priority READY'd task. */
 static inline SK_HOT sk_task *sk_task_find_ready(void)
 {
-	sk_task *elected = task_current;
+	sk_task *elected = task_head;
+	sk_task *tmp = task_head;
+	while (tmp) {
+		if (tmp->state == READY &&
+		    (tmp->priority > elected->priority)) {
+			elected = tmp;
+		}
+		tmp = tmp->next;
+	}
+
+	return elected;
+}
+
+#else
+/* Simple round-robin. */
+static inline SK_HOT sk_task *sk_task_find_ready(void)
+{
 	sk_task *tmp = task_current;
 	while (tmp->next) {
 		tmp = tmp->next;
 		if (tmp->state == READY) {
 			return tmp;
-			//if (tmp->priority > elected->priority) {
-			//	elected = tmp;
-			//}
 		}
 	}
 
@@ -127,6 +144,7 @@ static inline SK_HOT sk_task *sk_task_find_ready(void)
 
 	return NULL;
 }
+#endif /* SKIRT_HARD_PRIO */
 
 void sk_task_switch(void)
 {
@@ -144,6 +162,7 @@ void sk_task_switch(void)
 	SK_ASSERT(next);
 
 	next->state = RUNNING;
+	next->counter.ready = 0;
 	task_current = next;
 }
 
@@ -164,7 +183,6 @@ sk_task *sk_task_create_static(sk_task_func func, short priority, void *stack,
 	task->state = READY;
 
 	sk_arch_stack_init(func, task);
-
 
 	return task;
 }

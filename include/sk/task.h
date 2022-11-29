@@ -31,10 +31,14 @@ typedef struct sk_mail sk_mail;
 typedef enum sk_state { RUNNING, READY, WAITING, SLEEPING } sk_state;
 
 typedef struct sk_counter {
+	/* Those counters are never reset. */
 	sk_size_t since_creation;
 	sk_size_t running;
 	sk_size_t waiting;
+
+	/* Those counters are reset when changing state. */
 	sk_size_t sleeping;
+	sk_size_t ready;
 } sk_counter;
 
 typedef struct sk_task {
@@ -45,7 +49,7 @@ typedef struct sk_task {
 	sk_counter counter;
 	short priority;
 	struct sk_task *next;
-	sk_mail* mailbox;
+	sk_mail *mailbox;
 } sk_task;
 
 /**
