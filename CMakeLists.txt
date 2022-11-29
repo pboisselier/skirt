@@ -73,11 +73,24 @@ if (SKIRT_ARCH STREQUAL "avr")
     target_link_options(skirt PUBLIC -mmcu=${SKIRT_AVR_MCU})
 endif ()
 
+#####################
+# Generate Examples #
+#####################
 
-# TODO: Remove this test and maybe write true tests
-add_executable(test.elf src/test/test.c)
-target_include_directories(test.elf PUBLIC include)
-target_compile_options(test.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
-target_compile_options(test.elf PUBLIC -fno-fat-lto-objects -ffunction-sections -fdata-sections -flto --pedantic)
-target_link_options(test.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
-target_link_libraries(test.elf skirt)
+if (DEFINED SKIRT_EXAMPLES)
+    # Semaphores
+    add_executable(semaphores.elf src/examples/semaphores.c)
+    target_include_directories(semaphores.elf PUBLIC include)
+    target_compile_options(semaphores.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
+    target_compile_options(semaphores.elf PUBLIC -fno-fat-lto-objects -ffunction-sections -fdata-sections -flto --pedantic)
+    target_link_options(semaphores.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
+    target_link_libraries(semaphores.elf skirt)
+
+    # Mails
+    add_executable(mails.elf src/examples/mails.c)
+    target_include_directories(mails.elf PUBLIC include)
+    target_compile_options(mails.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
+    target_compile_options(mails.elf PUBLIC -fno-fat-lto-objects -ffunction-sections -fdata-sections -flto --pedantic)
+    target_link_options(mails.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
+    target_link_libraries(mails.elf skirt)
+endif ()

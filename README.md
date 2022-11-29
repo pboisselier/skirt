@@ -55,6 +55,7 @@ When using `SKIRT_ALLOC_STATIC`:
 
 #### Others
 
+- `SKIRT_SERIAL_BAUD`, by default the baud rate is set to 115200, you can change it by setting this macro.
 - `SKIRT_HARD_PRIO`, this enables struct priority-based scheduling, all tasks yield to the highest priority one until it
   needs to sleep or wait. In the case of multiple tasks having the same priority, the last one created is preferred.
 - `SKIRT_DEBUG`, will add information and more assertions (increase memory by a lot!).
@@ -70,6 +71,7 @@ When compiling, CMake expects some options:
 - `SKIRT_ARCH` , which is the targeted architecture
 - `SKIRT_CC_PREFIX`, which provides a path for a crosscompiler, `path/prefix-` (the `-` at the
   end is important).
+- `SKIRT_EXAMPLES`, will build some examples ELF files ready to be uploaded and tested.
 
 For debugging, use `CMAKE_BUILD_TYPE=Debug` to include debugging symbols and other options.
 
