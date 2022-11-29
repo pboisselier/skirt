@@ -78,6 +78,9 @@ endif ()
 #####################
 
 if (DEFINED SKIRT_EXAMPLES)
+    # Get rid of "unused variable"
+    message(VERBOSE "Building examples because SKIRT_EXAMPLES is set to ${SKIRT_EXAMPLES}")
+
     # Semaphores
     add_executable(semaphores.elf src/examples/semaphores.c)
     target_include_directories(semaphores.elf PUBLIC include)

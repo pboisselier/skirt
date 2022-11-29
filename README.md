@@ -34,14 +34,124 @@
 - IPCs
     - [ ] Add IDs for Semaphores instead of pointer?
 
-## How to use
+# How to use
 
-Tasks must first be created using `sk_task_create_static`.
-Then a call to `sk_kernel_start` starts the kernel and tasks will be executed from there.
+## Quick-Start
 
-### Options
+*This quick-start uses an ATmega328P for demonstration.*
 
-#### Kernel Memory Allocation
+### Retrieving the Kernel
+
+The easiest way and preferred way to download sources is to use `git clone` which will create a folder named `skirt`
+with everything needed inside.
+
+```shell
+git clone https://github.com/pboisselier/skirt.git
+```
+
+You can also use the "<> Code" button and select "Download ZIP" if you prefer.
+
+### Building Examples
+
+This project uses [CMake](https://cmake.org/) to provide ease-of-use across platforms.
+First thing is to make sure you have `cmake` installed, if not you can download it
+from [here](https://cmake.org/download/).
+
+Next, you need to have the GCC AVR Toolchain installed and in your `$PATH`, this can be checked easily:
+
+```shell
+avr-gcc --version
+
+# Possible Output
+#avr-gcc (GCC) 7.3.0
+#Copyright (C) 2017 Free Software Foundation, Inc.
+#This is free software; see the source for copying conditions.  There is NO
+#warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+```
+
+If you need to install `avr-gcc`, use your favourite package manager or WSL on Windows (or use the Microchip provided
+one but this can require changing the CMakeLists.txt to use `xc8`).
+For *Apple M1*, homebrew does not have the AVR GCC Toolchain available, however you can find it on the Microchip
+website,
+or use PlatformIO which will retrieve it for you.
+
+Now you can build using CMake, you need to create an empty folder named "build" which will be used to hold temporary
+files.
+
+```shell
+# Make sure you are at the root of the skirt folder.
+mkdir build
+cd build
+```
+
+This project requires some options to be passed on to CMake, however it will not work.
+
+```shell
+# This will build all examples for the ATmega328P in Debug mode
+cmake .. -DSKIRT_EXAMPLES=1 -DSKIRT_ARCH=avr -DSKIRT_AVR_MCU=atmega328p -DCMAKE_BUILD_TYPE=Debug
+
+# Possible Output:
+#-- The C compiler identification is [...]
+#-- The CXX compiler identification is [...]
+#-- Detecting C compiler ABI info
+#-- Detecting C compiler ABI info - done
+#-- Check for working C compiler: [...] - skipped
+#-- Detecting C compile features
+#-- Detecting C compile features - done
+#-- Configuring done
+#-- Generating done
+#-- Build files have been written to: ./build
+```
+
+Finally, we can use `make` (or `ninja` if CMake preferred it) to build all targets.
+
+```shell
+make
+
+# Possible Output
+# [ 11%] Building C object CMakeFiles/skirt.dir/src/sk/skirt.c.obj
+# [ 22%] Building C object CMakeFiles/skirt.dir/src/sk/task.c.obj
+# [ 33%] Building C object CMakeFiles/skirt.dir/src/sk/ipc.c.obj
+# [ 44%] Building C object CMakeFiles/skirt.dir/src/sk/arch/avr/avr.c.obj
+# [ 55%] Linking C static library libskirt.a
+# [ 55%] Built target skirt
+# [ 66%] Building C object CMakeFiles/semaphores.elf.dir/src/examples/semaphores.c.obj
+# [ 77%] Linking C executable semaphores.elf
+# [ 77%] Built target semaphores.elf
+# [ 88%] Building C object CMakeFiles/mails.elf.dir/src/examples/mails.c.obj
+# [100%] Linking C executable mails.elf
+# [100%] Built target mails.elf
+```
+
+There should be multiple `.elf` files in the `build` folder.
+
+### Uploading an example
+
+You need to have `avrdude` installed first (it comes with Arduino, so you can find it in Arduino's install folder if
+needed).
+
+*You need to replace `example.elf` in the commands below with the `.elf` file you want to upload.*
+
+#### For Arduino
+
+```shell
+avrdude -p m328p -c arduino -P /arduino/serial/port -b115200 -U flash:w:example.elf
+```
+
+You need to replace `/arduino/serial/port` with the actual path to the serial port (`/dev/ttyACM0` on linux for
+instance).
+
+#### For Microchip's xPlainedMini
+
+No need to specify a serial port as it's using USB.
+
+```shell
+avrdude -p m328p -c xplainedmini -U flash:w:example.elf
+```
+
+## Options
+
+### Kernel Memory Allocation
 
 By default, this kernel uses a static allocation scheme for tasks and IPCs.
 
@@ -53,7 +163,7 @@ When using `SKIRT_ALLOC_STATIC`:
 
 *Note: if `SKIRT_SEM_MAX` and/or `SKIRT_MAIL_MAX` are not specified, `SKIRT_TASK_MAX` is used (5 by default)!*
 
-#### Others
+### Others
 
 - `SKIRT_SERIAL_BAUD`, by default the baud rate is set to 115200, you can change it by setting this macro.
 - `SKIRT_HARD_PRIO`, this enables struct priority-based scheduling, all tasks yield to the highest priority one until it
@@ -107,3 +217,7 @@ Program:    4276 bytes (13.0% Full)
 Data:       1923 bytes (93.9% Full)
 (.data + .bss + .noinit)
 ```
+
+To reduce size, remove unnecessary strings as they tend to be stored in SRAM on this platform.
+You can also build without Debug, which will greatly reduce string consumption by removing unneeded information in
+assertions. 
