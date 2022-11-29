@@ -16,7 +16,7 @@ typedef void (*sk_task_func)(void);
 #ifdef SKIRT_ALLOC_STATIC
 
 #ifndef SKIRT_PREEMPT_TIME
-#define SKIRT_PREEMPT_TIME 1
+#define SKIRT_PREEMPT_TIME 512
 #endif /* SKIRT_PREEMPT_TIME */
 
 #ifndef SKIRT_TASK_MAX

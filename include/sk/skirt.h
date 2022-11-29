@@ -19,13 +19,13 @@
 	} while (0)
 
 #ifdef SKIRT_DEBUG
-#define SK_ASSERT(pred)                                        \
-	do {                                                   \
-		if (!(pred)) {                                 \
-			SK_PANIC("Assertion \"" #pred          \
-				 "\" failed at " __BASE_FILE__ \
-				 ":" SK_STR(__LINE__) "!\n\r");  \
-		}                                              \
+#define SK_ASSERT(pred)                                         \
+	do {                                                    \
+		if (!(pred)) {                                  \
+			SK_PANIC("Assertion \"" #pred           \
+				 "\" failed at " __BASE_FILE__  \
+				 ":" SK_STR(__LINE__) "!\n\r"); \
+		}                                               \
 	} while (0)
 
 #define SK_VERIFY_NOT_REACHED()               \
@@ -33,7 +33,12 @@
 		 ":" SK_STR(__LINE__) " should not return!\n\r")
 #else
 #define SK_VERIFY_NOT_REACHED() SK_PANIC("REACHED")
-#define SK_ASSERT(pred) SK_PANIC("ASSERT")
+#define SK_ASSERT(pred)                     \
+	do {                                \
+		if (!(pred)) {              \
+			SK_PANIC("ASSERT"); \
+		}                           \
+	} while (0)
 #endif /* SKIRT_DEBUG */
 
 #ifdef __GNUC__
