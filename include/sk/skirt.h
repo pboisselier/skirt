@@ -33,11 +33,11 @@
 		 ":" SK_STR(__LINE__) " should not return!\n\r")
 #else
 #define SK_VERIFY_NOT_REACHED() SK_PANIC("REACHED")
-#define SK_ASSERT(pred)                     \
-	do {                                \
-		if (!(pred)) {              \
-			SK_PANIC("ASSERT"); \
-		}                           \
+#define SK_ASSERT(pred)                                    \
+	do {                                               \
+		if (!(pred)) {                             \
+			SK_PANIC("Assertion failed!\n\r"); \
+		}                                          \
 	} while (0)
 #endif /* SKIRT_DEBUG */
 
