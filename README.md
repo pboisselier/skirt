@@ -46,7 +46,11 @@ The easiest way and preferred way to download sources is to use `git clone` whic
 with everything needed inside.
 
 ```shell
+# Clone this repository
 git clone https://github.com/pboisselier/skirt.git
+
+# Move into SKIRT's root folder
+cd skirt
 ```
 
 You can also use the "<> Code" button and select "Download ZIP" if you prefer.
@@ -84,7 +88,7 @@ mkdir build
 cd build
 ```
 
-This project requires some options to be passed on to CMake, however it will not work.
+This project requires some options to be passed on to CMake, otherwise it will not work.
 
 ```shell
 # This will build all examples for the ATmega328P in Debug mode
@@ -149,9 +153,58 @@ No need to specify a serial port as it's using USB.
 avrdude -p m328p -c xplainedmini -U flash:w:example.elf
 ```
 
-## Options
+### Serial
 
-### Kernel Memory Allocation
+These examples use the serial port, you can easily monitor it using `picocom` on Linux (or MacOS) or `PuTTY` on Windows.
+You can also use the provided Serial Monitor in the Arduino IDE.
+
+#### Picocom
+
+The serial port path `/dev/serial/port` needs to be replaced, on Linux it's generally `/dev/ttyACM0` and on
+MacOS `/dev/cu.usbmodemX`.
+
+```shell
+picocom -b 115200 /dev/serial/port
+```
+
+#### PuTTY
+
+Select `Serial` on the new connection page and select the correct `COM` port, this can be found using Device Manager on
+Windows.
+
+# Compiling
+
+When compiling, CMake expects some options:
+
+### Required
+
+- `SKIRT_ARCH` , which is the targeted architecture.
+
+### Optional
+
+- `SKIRT_CC_PREFIX`, which provides a path for a crosscompiler, `path/prefix-` (the `-` at the
+  end is important).
+- `SKIRT_EXAMPLES`, will build some example ELF files ready to be uploaded and tested.
+
+For debugging, use `CMAKE_BUILD_TYPE=Debug` to include debugging symbols and other options.
+
+## AVR Architecture
+
+For instance using a ATmega328P (which is the only AVR supported for the moment):
+
+```shell
+mkdir build
+cd build
+cmake .. -DSKIRT_ARCH=avr -DSKIRT_AVR_MCU=atmega328p -DCMAKE_BUILD_TYPE=Debug
+make
+```
+
+# Kernel Options
+
+These options are passed by CMake during compilation, you can change them directly in the `CMakeLists.txt`
+with `target_compile_definitions(skirt PUBLIC SKIRT_OPTION=VALUE)`.
+
+## Kernel Memory Allocation
 
 By default, this kernel uses a static allocation scheme for tasks and IPCs.
 
@@ -163,7 +216,7 @@ When using `SKIRT_ALLOC_STATIC`:
 
 *Note: if `SKIRT_SEM_MAX` and/or `SKIRT_MAIL_MAX` are not specified, `SKIRT_TASK_MAX` is used (5 by default)!*
 
-### Others
+## Others
 
 - `SKIRT_SERIAL_BAUD`, by default the baud rate is set to 115200, you can change it by setting this macro.
 - `SKIRT_HARD_PRIO`, this enables struct priority-based scheduling, all tasks yield to the highest priority one until it
@@ -174,31 +227,9 @@ When using `SKIRT_ALLOC_STATIC`:
 - `SKIRT_TASK_STACK_SZ`, provides a default stack size for a specific architecture, this can be changed if **needed**.
 - `SKIRT_KERNEL`, enables kernel symbol export (used for building `libskirt`).
 
-## Compiling
+# Troubleshooting
 
-When compiling, CMake expects some options:
-
-- `SKIRT_ARCH` , which is the targeted architecture
-- `SKIRT_CC_PREFIX`, which provides a path for a crosscompiler, `path/prefix-` (the `-` at the
-  end is important).
-- `SKIRT_EXAMPLES`, will build some examples ELF files ready to be uploaded and tested.
-
-For debugging, use `CMAKE_BUILD_TYPE=Debug` to include debugging symbols and other options.
-
-### AVR
-
-For instance using a ATmega328P (which is the only AVR supported for the moment):
-
-```shell
-mkdir build
-cd build
-cmake .. -DSKIRT_ARCH=avr -DSKIRT_AVR_MCU=atmega328p -DCMAKE_BUILD_TYPE=Debug
-make
-```
-
-## Troubleshooting
-
-### Checking object file
+## Checking object file
 
 For some MCU like the ATmega328P where there is only 2KiB of SRAM, the generated ELF file may be too big to fit in.
 This can lead to lots of undefined and weird behaviours.
