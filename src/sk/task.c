@@ -18,6 +18,7 @@ static inline sk_task *sk_task_alloc(void)
 		if (task_pool[i].stack == NULL) {
 			task_pool[i].next = NULL;
 			task_pool[i].sp = NULL;
+			task_pool[i].mailbox = NULL;
 			task_pool[i].priority = 0;
 			task_pool[i].stack_sz = 0;
 			task_pool[i].counter.since_creation = 0;
