@@ -11,6 +11,10 @@
 
 #ifdef SK_SERIAL_SUPPORT
 
+#ifndef SKIRT_SERIAL_BAUD
+#define SKIRT_SERIAL_BAUD 115200L
+#endif /* SKIRT_SERIAL_BAUD */
+
 /**
  * @brief Initialize serial.
  * @note Default configuration depends on architecture.

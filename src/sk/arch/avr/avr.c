@@ -15,18 +15,18 @@ const char *const panic_art[5] = {
 	"|_|\\_\\_____|_| \\_\\_| \\_|_____|_____| |_| /_/   \\_\\_| \\_|___\\____|\n\r\n\r> "
 };
 #else
-const char *const panic_art[5] = { "\n\r", "\n\r", "-- KERNEL PANIC --\n\r", "\n\r",
-				   "> " };
+const char *const panic_art[5] = { "\n\r", "\n\r", "-- KERNEL PANIC --\n\r",
+				   "\n\r", "> " };
 #endif /* SKIRT_VANITY */
 
 extern sk_task *volatile task_current;
 extern sk_task *volatile task_head;
 
-#define stack_overflow_protection(sp, stack_end)       \
-	do {                                           \
-		if (sp < stack_end) {                  \
+#define stack_overflow_protection(sp, stack_end)         \
+	do {                                             \
+		if (sp < stack_end) {                    \
 			SK_PANIC("Stack overflow!\n\r"); \
-		}                                      \
+		}                                        \
 	} while (0)
 
 #ifdef __AVR_ATmega328P__
@@ -82,7 +82,7 @@ SK_NORETURN void sk_arch_panic(const char *msg)
 /* TODO: Add more serial options. */
 void sk_arch_serial_init(void)
 {
-	UBRR0 = F_CPU / 16L / 115200L;
+	UBRR0 = F_CPU / 16L / SKIRT_SERIAL_BAUD;
 	/* Enable Tx and Rx operations */
 	UCSR0B = (1 << RXEN0) | (1 << TXEN0);
 	/* Set communication to asynchronous mode */
