@@ -24,7 +24,7 @@
 #ifdef SKIRT_KERNEL
 
 #ifdef __AVR_ATmega328P__
-#define SK_CONTEXT_SZ 31
+#define SK_CONTEXT_SZ 35
 
 /**
  * Used under MIT License.
@@ -115,25 +115,6 @@
 #endif
 
 /**
- * @brief Initialize stack for a task.
- * @param func Task function pointer for initialization.
- * @param task Newly created task.
- */
-SK_INLINE void sk_arch_stack_init(sk_task_func func, sk_task *task)
-{
-	task->sp = (task->stack + task->stack_sz - 1);
-	*(task->sp) = (uint8_t)((uint16_t)func & 0xff);
-	task->sp--;
-	*(task->sp) = (uint8_t)(((uint16_t)func >> 8) & 0xff);
-	task->sp --;
-	*task->sp = (uint8_t)0x00; /* r0 to 0 */
-	task->sp--;
-	*task->sp = (uint8_t)0x80; /* Interrupts ON */
-	task->sp--;
-	*task->sp = (uint8_t)0x00; /* r1 to 0 */
-	task->sp -= SK_CONTEXT_SZ;
-}
-/**
  * @brief Yield task to another, defined in avr.c.
  */
 extern void sk_arch_yield(void) SK_NAKED;
@@ -152,16 +133,25 @@ extern void sk_arch_yield(void) SK_NAKED;
 /**
  * @brief Restore context and SP.
  */
-#define sk_arch_restore_task_context(task)        \
-	do {                                      \
-		SP = (sk_size_t)task->sp; \
-		sk_arch_restore_context();        \
+#define sk_arch_restore_task_context(task) \
+	do {                               \
+		SP = (sk_size_t)task->sp;  \
+		sk_arch_restore_context(); \
 	} while (0)
 
 /**
  * @brief Enable preemption timer.
  */
 extern void sk_arch_init_preempt(void);
+
+/**
+ * @brief Provide a way to use a "naked" return from kernel code.
+ */
+#define sk_arch_first_yield(task)                   \
+	do {                                        \
+		sk_arch_restore_task_context(task); \
+		__asm__ __volatile__("ret");        \
+	} while (0)
 
 /**
  * @brief Nop on AVR architecture.
@@ -193,6 +183,27 @@ extern void sk_arch_serial_init(void);
 
 #endif /* SK_SERIAL_SUPPORT */
 
+/**
+ * @brief Initialize stack for a task.
+ * @param func Task function pointer for initialization.
+ * @param task Newly created task.
+ */
+SK_INLINE void sk_arch_stack_init(sk_task_func func, sk_task *task)
+{
+	SK_ASSERT(task->stack_sz > SK_CONTEXT_SZ);
+
+	task->sp = (task->stack + task->stack_sz - 1);
+	*(task->sp) = (uint8_t)((uint16_t)func & 0xff);
+	task->sp--;
+	*(task->sp) = (uint8_t)(((uint16_t)func >> 8) & 0xff);
+	task->sp--;
+	*task->sp = (uint8_t)0x00; /* r0 to 0 */
+	task->sp--;
+	*task->sp = (uint8_t)0x80; /* Interrupts ON */
+	task->sp--;
+	*task->sp = (uint8_t)0x00; /* r1 to 0 */
+	task->sp -= (SK_CONTEXT_SZ - 4);
+}
 #endif /* SKIRT_KERNEL */
 
 #endif /* SKIRT_ARCH_H */

@@ -10,8 +10,11 @@ extern sk_task *task_current;
 
 #ifdef SKIRT_ALLOC_STATIC
 
-/* Using SKIRT_TASK_MAX for pool size, should be plenty. */
-static sk_sem sem_pool[SKIRT_TASK_MAX] = { 0 };
+#ifndef SKIRT_SEM_MAX
+#define SKIRT_SEM_MAX SKIRT_TASK_MAX
+#endif /* SKIRT_SEM_MAX */
+
+static sk_sem sem_pool[SKIRT_SEM_MAX] = { 0 };
 
 static inline sk_sem *sk_sem_alloc(int initial_value)
 {
@@ -30,13 +33,17 @@ static inline void sk_sem_free(sk_sem *sem)
 {
 	SK_ASSERT(sem);
 	if (sem < sem_pool || sem > &sem_pool[SKIRT_TASK_MAX - 1]) {
-		SK_PANIC("Provided sem is not from the static pool!\n");
+		SK_PANIC("Provided sem is not from the static pool!\n\r");
 	}
 	sem->counter = 0;
 	sem->flag = 0;
 }
 
-static sk_mail mail_pool[SKIRT_TASK_MAX] = { 0 };
+#ifndef SKIRT_MAIL_MAX
+#define SKIRT_MAIL_MAX SKIRT_TASK_MAX
+#endif /* SKIRT_MAIL_MAX */
+
+static sk_mail mail_pool[SKIRT_MAIL_MAX] = { 0 };
 
 static inline sk_mail *sk_mail_alloc(const void *msg)
 {
@@ -55,7 +62,7 @@ static inline void sk_mail_free(sk_mail *mail)
 {
 	SK_ASSERT(mail);
 	if (mail < mail_pool || mail > &mail_pool[SKIRT_TASK_MAX - 1]) {
-		SK_PANIC("Provided mail is not from the static pool!\n");
+		SK_PANIC("Provided mail is not from the static pool!\n\r");
 	}
 	mail->msg = NULL;
 	mail->task = NULL;

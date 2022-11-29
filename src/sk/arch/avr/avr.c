@@ -6,14 +6,40 @@
 #include <sk/arch.h>
 #include <sk/serial.h>
 
+#ifdef SKIRT_VANITY
+const char *const panic_art[5] = {
+	" _  _______ ____  _   _ _____ _       ____   _    _   _ ___ ____\n\r",
+	"| |/ / ____|  _ \\| \\ | | ____| |     |  _ \\ / \\  | \\ | |_ _/ ___|\n\r",
+	"| ' /|  _| | |_) |  \\| |  _| | |     | |_) / _ \\ |  \\| || | |    \n\r",
+	"| . \\| |___|  _ <| |\\  | |___| |___  |  __/ ___ \\| |\\  || | |___\n\r",
+	"|_|\\_\\_____|_| \\_\\_| \\_|_____|_____| |_| /_/   \\_\\_| \\_|___\\____|\n\r\n\r> "
+};
+#else
+const char *const panic_art[5] = { "\n\r", "\n\r", "-- KERNEL PANIC --\n\r", "\n\r",
+				   "> " };
+#endif /* SKIRT_VANITY */
+
 extern sk_task *volatile task_current;
 extern sk_task *volatile task_head;
 
+#define stack_overflow_protection(sp, stack_end)       \
+	do {                                           \
+		if (sp < stack_end) {                  \
+			SK_PANIC("Stack overflow!\n\r"); \
+		}                                      \
+	} while (0)
+
 #ifdef __AVR_ATmega328P__
+
+#ifndef F_CPU
+#define F_CPU 16000000
+#endif /* F_CPU */
+
 ISR(TIMER1_COMPA_vect, ISR_NAKED)
 {
 	cli();
 	sk_arch_save_context();
+	stack_overflow_protection((sk_stack_t *)SP, task_current->stack);
 	task_current->sp = (sk_stack_t *)SP;
 	sk_task_switch();
 	sk_arch_restore_task_context(task_current);
@@ -45,8 +71,9 @@ SK_NAKED void sk_arch_yield(void)
 
 SK_NORETURN void sk_arch_panic(const char *msg)
 {
-	sk_serial_print("---- KERNEL PANIC ----\n");
-	sk_serial_print("Reason: ");
+	for (unsigned i = 0; i < 5; ++i) {
+		sk_serial_print(panic_art[i]);
+	}
 	sk_serial_print(msg);
 	for (;;)
 		;
@@ -55,7 +82,7 @@ SK_NORETURN void sk_arch_panic(const char *msg)
 /* TODO: Add more serial options. */
 void sk_arch_serial_init(void)
 {
-	UBRR0 = 9600L;
+	UBRR0 = F_CPU / 16L / 115200L;
 	/* Enable Tx and Rx operations */
 	UCSR0B = (1 << RXEN0) | (1 << TXEN0);
 	/* Set communication to asynchronous mode */
