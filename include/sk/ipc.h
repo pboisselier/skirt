@@ -84,8 +84,9 @@ extern void sk_sig_register(int sig, sk_sig_handler handler);
   * @brief Send a mail to another task (FiFo).
   * @param task Recipient task.
   * @param msg Pointer to data.
+  * @return True if mail was sent, False if not.
   */
-extern void sk_mail_send_to(sk_task *task, const void *msg);
+extern bool sk_mail_send_to(sk_task *task, const void *msg);
 /**
  * @brief Check if a mail is available.
  * @return True if there's a new mail, false otherwise.

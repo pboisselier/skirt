@@ -133,14 +133,18 @@ bool sk_sem_try_acquire(sk_sem *sem)
 	return true;
 }
 
-void sk_mail_send_to(sk_task *task, const void *msg)
+bool sk_mail_send_to(sk_task *task, const void *msg)
 {
 	sk_arch_disable_int();
 	SK_ASSERT(task);
 
 	sk_mail *mail = sk_mail_alloc(msg);
+	if (!mail) {
+		sk_arch_enable_int();
+		return false;
+	}
+
 	mail->task = task;
-	SK_ASSERT(mail);
 
 	if (!task->mailbox) {
 		task->mailbox = mail;
@@ -152,6 +156,7 @@ void sk_mail_send_to(sk_task *task, const void *msg)
 		tmp->next = mail;
 	}
 
+	return true;
 	sk_arch_enable_int();
 }
 
