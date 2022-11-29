@@ -24,13 +24,13 @@
 		if (!(pred)) {                                 \
 			SK_PANIC("Assertion \"" #pred          \
 				 "\" failed at " __BASE_FILE__ \
-				 ":" SK_STR(__LINE__) "!\n");  \
+				 ":" SK_STR(__LINE__) "!\n\r");  \
 		}                                              \
 	} while (0)
 
 #define SK_VERIFY_NOT_REACHED()               \
 	SK_PANIC("Function at " __BASE_FILE__ \
-		 ":" SK_STR(__LINE__) " should not return!\n")
+		 ":" SK_STR(__LINE__) " should not return!\n\r")
 #else
 #define SK_VERIFY_NOT_REACHED() SK_PANIC("REACHED")
 #define SK_ASSERT(pred) SK_PANIC("ASSERT")

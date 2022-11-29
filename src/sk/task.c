@@ -35,7 +35,7 @@ static inline void sk_task_free(sk_task *task)
 {
 	SK_ASSERT(task);
 	if (task < task_pool || task > &task_pool[SKIRT_TASK_MAX - 1]) {
-		SK_PANIC("Provided task is not from the static pool!\n");
+		SK_PANIC("Provided task is not from the static pool!\n\r");
 	}
 	task->stack = NULL;
 }

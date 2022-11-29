@@ -30,7 +30,7 @@ static inline void sk_sem_free(sk_sem *sem)
 {
 	SK_ASSERT(sem);
 	if (sem < sem_pool || sem > &sem_pool[SKIRT_TASK_MAX - 1]) {
-		SK_PANIC("Provided sem is not from the static pool!\n");
+		SK_PANIC("Provided sem is not from the static pool!\n\r");
 	}
 	sem->counter = 0;
 	sem->flag = 0;
@@ -55,7 +55,7 @@ static inline void sk_mail_free(sk_mail *mail)
 {
 	SK_ASSERT(mail);
 	if (mail < mail_pool || mail > &mail_pool[SKIRT_TASK_MAX - 1]) {
-		SK_PANIC("Provided mail is not from the static pool!\n");
+		SK_PANIC("Provided mail is not from the static pool!\n\r");
 	}
 	mail->msg = NULL;
 	mail->task = NULL;

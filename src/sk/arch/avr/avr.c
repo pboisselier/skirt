@@ -8,14 +8,14 @@
 
 #ifdef SKIRT_VANITY
 const char *const panic_art[5] = {
-	" _  _______ ____  _   _ _____ _       ____   _    _   _ ___ ____\n",
-	"| |/ / ____|  _ \\| \\ | | ____| |     |  _ \\ / \\  | \\ | |_ _/ ___|\n",
-	"| ' /|  _| | |_) |  \\| |  _| | |     | |_) / _ \\ |  \\| || | |    \n",
-	"| . \\| |___|  _ <| |\\  | |___| |___  |  __/ ___ \\| |\\  || | |___\n",
-	"|_|\\_\\_____|_| \\_\\_| \\_|_____|_____| |_| /_/   \\_\\_| \\_|___\\____|\n"
+	" _  _______ ____  _   _ _____ _       ____   _    _   _ ___ ____\n\r",
+	"| |/ / ____|  _ \\| \\ | | ____| |     |  _ \\ / \\  | \\ | |_ _/ ___|\n\r",
+	"| ' /|  _| | |_) |  \\| |  _| | |     | |_) / _ \\ |  \\| || | |    \n\r",
+	"| . \\| |___|  _ <| |\\  | |___| |___  |  __/ ___ \\| |\\  || | |___\n\r",
+	"|_|\\_\\_____|_| \\_\\_| \\_|_____|_____| |_| /_/   \\_\\_| \\_|___\\____|\n\r\n\r> "
 };
 #else
-const char *const panic_art[5] = { "\n", "\n", "-- KERNEL PANIC --\n", "\n",
+const char *const panic_art[5] = { "\n\r", "\n\r", "-- KERNEL PANIC --\n\r", "\n\r",
 				   "> " };
 #endif /* SKIRT_VANITY */
 
@@ -25,7 +25,7 @@ extern sk_task *volatile task_head;
 #define stack_overflow_protection(sp, stack_end)       \
 	do {                                           \
 		if (sp < stack_end) {                  \
-			SK_PANIC("Stack overflow!\n"); \
+			SK_PANIC("Stack overflow!\n\r"); \
 		}                                      \
 	} while (0)
 
@@ -82,7 +82,7 @@ SK_NORETURN void sk_arch_panic(const char *msg)
 /* TODO: Add more serial options. */
 void sk_arch_serial_init(void)
 {
-	UBRR0 = F_CPU / (16 * 115200L) - 1;
+	UBRR0 = F_CPU / 16L / 115200L;
 	/* Enable Tx and Rx operations */
 	UCSR0B = (1 << RXEN0) | (1 << TXEN0);
 	/* Set communication to asynchronous mode */
