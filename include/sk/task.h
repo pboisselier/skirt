@@ -23,6 +23,10 @@ typedef void (*sk_task_func)(void);
 #define SKIRT_TASK_MAX 5
 #endif /* SKIRT_TASK_MAX */
 
+#ifndef SKIRT_TASK_STACK_SZ
+#define SKIRT_TASK_STACK_SZ 48
+#endif /* SKIRT_TASK_STACK_SZ */
+
 #endif /* SKIRT_ALLOC_STATIC*/
 
 /* Forward declaration for Mail structure */
@@ -60,10 +64,6 @@ extern void sk_task_switch(void);
 #else /* Provide hidden definitions. */
 typedef struct sk_task sk_task;
 #endif /* SKIRT_KERNEL */
-
-#ifndef SKIRT_TASK_STACK_SZ
-#define SKIRT_TASK_STACK_SZ 48
-#endif /* SKIRT_TASK_STACK_SZ */
 
 /**
  * @brief Create a task with a static stack.

@@ -4,7 +4,7 @@
 
 ## Features
 
-- [ ] Task Management
+- [x] Task Management
     - [x] Creation
     - [x] Deletion (and exit)
     - [x] Switching
@@ -60,6 +60,7 @@ When using `SKIRT_ALLOC_STATIC`:
 - `SKIRT_DEBUG`, will add information and more assertions (increase memory by a lot!).
 - `SKIRT_VANITY`, prettier debug messages (increases memory use on certain MCUs).
 - `SKIRT_PREEMPT_TIME`, arbitrary value for preemption timer.
+- `SKIRT_TASK_STACK_SZ`, provides a default stack size for a specific architecture, this can be changed if **needed**.
 - `SKIRT_KERNEL`, enables kernel symbol export (used for building `libskirt`).
 
 ## Compiling

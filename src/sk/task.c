@@ -104,7 +104,6 @@ static inline void sk_task_update_counters(void)
 	}
 }
 
-#define SKIRT_HARD_PRIO
 #ifdef SKIRT_HARD_PRIO
 /* Always yield to the highest priority READY'd task. */
 static inline SK_HOT sk_task *sk_task_find_ready(void)
