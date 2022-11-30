@@ -47,6 +47,8 @@ target_compile_definitions(skirt PUBLIC SKIRT_KERNEL)
 # Only static allocation available for now.
 # TODO: Make it optional when other allocation schemes are added
 target_compile_definitions(skirt PUBLIC SKIRT_ALLOC_STATIC)
+# TODO: Provide a better way to use kernel options
+#target_compile_definitions(skirt PUBLIC SKIRT_HARD_PRIO)
 target_include_directories(skirt PUBLIC include)
 
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
@@ -99,4 +101,12 @@ if (DEFINED SKIRT_EXAMPLES)
     target_compile_options(mails.elf PUBLIC -fno-fat-lto-objects -ffunction-sections -fdata-sections -flto --pedantic)
     target_link_options(mails.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
     target_link_libraries(mails.elf skirt)
+
+    # Priority
+    add_executable(priority.elf src/examples/priority.c)
+    target_include_directories(priority.elf PUBLIC include)
+    target_compile_options(priority.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
+    target_compile_options(priority.elf PUBLIC -fno-fat-lto-objects -ffunction-sections -fdata-sections -flto --pedantic)
+    target_link_options(priority.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
+    target_link_libraries(priority.elf skirt)
 endif ()
