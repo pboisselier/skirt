@@ -252,3 +252,7 @@ Data:       1923 bytes (93.9% Full)
 To reduce size, remove unnecessary strings as they tend to be stored in SRAM on this platform.
 You can also build without Debug, which will greatly reduce string consumption by removing unneeded information in
 assertions. 
+
+# License
+
+This work is licensed under [CeCILL](http://www.cecill.info), see the [LICENSE](LICENSE) file.

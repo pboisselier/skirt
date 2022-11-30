@@ -1,6 +1,7 @@
 ########################################
 # Small Kernel in Real-Time (SKIRT)    #
 # Copyright (c) 2022 Pierre Boisselier #
+# See LICENSE file provided            #
 ########################################
 
 cmake_minimum_required(VERSION 3.15)
@@ -15,7 +16,7 @@ set(CMAKE_C_COMPILER_WORKS 1)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 ################################################################
 
-project(skirt VERSION 0.1 DESCRIPTION "Small Kernel in Real-Time (or not)")
+project(skirt VERSION 0.3 DESCRIPTION "Small Kernel in Real-Time (or not)")
 
 if (NOT SKIRT_ARCH)
     message(FATAL_ERROR "Please set SKIRT_ARCH to specify a target architecture!\n"
@@ -51,6 +52,8 @@ target_include_directories(skirt PUBLIC include)
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
     target_compile_definitions(skirt PUBLIC SKIRT_DEBUG)
     target_compile_options(skirt PUBLIC -std=gnu11 -g -Os -pedantic -Wextra -Wall)
+else()
+    target_compile_options(skirt PUBLIC -std=gnu11 -Os -pedantic -Wextra -Wall)
 endif ()
 
 if (SKIRT_ARCH STREQUAL "avr")
