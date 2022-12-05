@@ -34,22 +34,65 @@ knowledge of the CeCILL license and that you accept its terms.
 */
 
 /**
- * @brief Defines kernel types.
+ * @brief Priority Example with SKIRT
  * @copyright Copyright (c) 2022 Pierre Boisselier All rights reserved.
+ *
+ * This example provides a way to compare different scheduling schemes.
+ * When using SKIRT_HARD_PRIO, only Task 3 should print its message.
  */
 
-#ifndef SKIRT_SK_TYPES_H
-#define SKIRT_SK_TYPES_H
+/* Contains functions starting with sk_task */
+#include <sk/task.h>
+/* For sending data on serial port. */
+#include <sk/serial.h>
 
-/* Using provided includes from GCC for AVR. */
-#include <stddef.h>
-#include <stdbool.h>
+sk_stack_t stack1[SKIRT_TASK_STACK_SZ];
+sk_stack_t stack2[SKIRT_TASK_STACK_SZ];
+sk_stack_t stack3[SKIRT_TASK_STACK_SZ];
 
-typedef unsigned char sk_stack_t;
-typedef size_t sk_size_t;
+sk_task *t1 = NULL;
+sk_task *t2 = NULL;
+sk_task *t3 = NULL;
 
-#ifndef NULL
-#define NULL ((void *)0)
-#endif /* NULL */
+static inline void ugly_delay(void)
+{
+	for (volatile unsigned long i = 0; i < 1000000; ++i) {
+		sk_arch_nop();
+	}
+}
 
-#endif /* SKIRT_SK_TYPES_H */
+void func_t1(void)
+{
+	while (1) {
+		sk_serial_print("T1\n\r");
+		ugly_delay();
+	}
+}
+
+void func_t2(void)
+{
+	while (1) {
+		sk_serial_print("T2\n\r");
+		ugly_delay();
+	}
+}
+
+void func_t3(void)
+{
+	while (1) {
+		sk_serial_print("T3\n\r");
+		ugly_delay();
+	}
+}
+
+int main(void)
+{
+	t1 = sk_task_create_static(func_t1, 1, stack1, sizeof stack1);
+	t2 = sk_task_create_static(func_t2, 2, stack2, sizeof stack2);
+	t3 = sk_task_create_static(func_t3, 3, stack3, sizeof stack3);
+
+	/* Start kernel. */
+	sk_kernel_start();
+
+	/* Never reached. */
+}

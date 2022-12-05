@@ -1,6 +1,7 @@
 ########################################
 # Small Kernel in Real-Time (SKIRT)    #
 # Copyright (c) 2022 Pierre Boisselier #
+# See LICENSE file provided            #
 ########################################
 
 cmake_minimum_required(VERSION 3.15)
@@ -15,7 +16,7 @@ set(CMAKE_C_COMPILER_WORKS 1)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 ################################################################
 
-project(skirt VERSION 0.1 DESCRIPTION "Small Kernel in Real-Time (or not)")
+project(skirt VERSION 0.3 DESCRIPTION "Small Kernel in Real-Time (or not)")
 
 if (NOT SKIRT_ARCH)
     message(FATAL_ERROR "Please set SKIRT_ARCH to specify a target architecture!\n"
@@ -46,11 +47,15 @@ target_compile_definitions(skirt PUBLIC SKIRT_KERNEL)
 # Only static allocation available for now.
 # TODO: Make it optional when other allocation schemes are added
 target_compile_definitions(skirt PUBLIC SKIRT_ALLOC_STATIC)
+# TODO: Provide a better way to use kernel options
+#target_compile_definitions(skirt PUBLIC SKIRT_HARD_PRIO)
 target_include_directories(skirt PUBLIC include)
 
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
     target_compile_definitions(skirt PUBLIC SKIRT_DEBUG)
     target_compile_options(skirt PUBLIC -std=gnu11 -g -Os -pedantic -Wextra -Wall)
+else()
+    target_compile_options(skirt PUBLIC -std=gnu11 -Os -pedantic -Wextra -Wall)
 endif ()
 
 if (SKIRT_ARCH STREQUAL "avr")
@@ -73,11 +78,35 @@ if (SKIRT_ARCH STREQUAL "avr")
     target_link_options(skirt PUBLIC -mmcu=${SKIRT_AVR_MCU})
 endif ()
 
+#####################
+# Generate Examples #
+#####################
 
-# TODO: Remove this test and maybe write true tests
-add_executable(test.elf src/test/test.c)
-target_include_directories(test.elf PUBLIC include)
-target_compile_options(test.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
-target_compile_options(test.elf PUBLIC -fno-fat-lto-objects -ffunction-sections -fdata-sections -flto --pedantic)
-target_link_options(test.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
-target_link_libraries(test.elf skirt)
+if (DEFINED SKIRT_EXAMPLES)
+    # Get rid of "unused variable"
+    message(VERBOSE "Building examples because SKIRT_EXAMPLES is set to ${SKIRT_EXAMPLES}")
+
+    # Semaphores
+    add_executable(semaphores.elf src/examples/semaphores.c)
+    target_include_directories(semaphores.elf PUBLIC include)
+    target_compile_options(semaphores.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
+    target_compile_options(semaphores.elf PUBLIC -fno-fat-lto-objects -ffunction-sections -fdata-sections -flto --pedantic)
+    target_link_options(semaphores.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
+    target_link_libraries(semaphores.elf skirt)
+
+    # Mails
+    add_executable(mails.elf src/examples/mails.c)
+    target_include_directories(mails.elf PUBLIC include)
+    target_compile_options(mails.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
+    target_compile_options(mails.elf PUBLIC -fno-fat-lto-objects -ffunction-sections -fdata-sections -flto --pedantic)
+    target_link_options(mails.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
+    target_link_libraries(mails.elf skirt)
+
+    # Priority
+    add_executable(priority.elf src/examples/priority.c)
+    target_include_directories(priority.elf PUBLIC include)
+    target_compile_options(priority.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
+    target_compile_options(priority.elf PUBLIC -fno-fat-lto-objects -ffunction-sections -fdata-sections -flto --pedantic)
+    target_link_options(priority.elf PUBLIC -mmcu=${SKIRT_AVR_MCU})
+    target_link_libraries(priority.elf skirt)
+endif ()
